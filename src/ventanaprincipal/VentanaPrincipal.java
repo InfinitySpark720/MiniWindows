@@ -22,13 +22,13 @@ public class VentanaPrincipal extends JFrame implements ActionListener{
     //Objetos/atributos.
     VentanaLogin panelLogin = new VentanaLogin();
     VentanaEscritorio panelEscritorio = new VentanaEscritorio();
-    Usuarios usuarios = new Usuarios();
     CrearUsuario panelCrearUsuario = new CrearUsuario();
     
     int posicionUsuario = 1; //Establecemos la posición 1 porque la 0 ya está ocupada.
     
     //Constructor.
     public VentanaPrincipal(){
+        
         
         setExtendedState(JFrame.MAXIMIZED_BOTH); 
         setVisible(true);
@@ -56,8 +56,13 @@ public class VentanaPrincipal extends JFrame implements ActionListener{
     
     //Variables para el login.
     private static Scanner sc;
-    private static int intentos;
     private static String user, contraseña;
+    private static File almacenUsuarios = new File("usuarios.txt");
+    private File file = new File("usuarios.txt");
+    int nLineas = 0;
+    String usuarios[] = new String[10];
+    Seguridad seguridad = new Seguridad();
+
     
     @Override
     public void actionPerformed(ActionEvent ae) {
@@ -70,12 +75,9 @@ public class VentanaPrincipal extends JFrame implements ActionListener{
             
             FileReader fr = null;
             try {
-                int nLineas = 0;
                 int i = 0;
-                String usuarios[] = null;
                 String linea;
-                sc = new Scanner(new File("usuarios.txt"));
-                File file = new File("usuarios.txt");
+                sc = new Scanner(almacenUsuarios);
                 fr = new FileReader(file);
                 BufferedReader br = new BufferedReader(fr);
                 
@@ -99,13 +101,10 @@ public class VentanaPrincipal extends JFrame implements ActionListener{
                     usuarios[i++] = sc.nextLine(); //Estamos almacenando cada línea en una posición del arreglo.
                 }
                 
-                //Cada vez que presione el botón de login, ha hecho un intento más.
-                intentos++;
                 user = panelLogin.campoUsuario.getText();
                 contraseña = panelLogin.campoContraseña.getText();
-                Seguridad seguridad = new Seguridad();
 
-                if (seguridad.validarUsuario(usuarios, user, contraseña, intentos) == true) {
+                if (seguridad.validarUsuario(usuarios, user, contraseña) == true) {
                     add(panelEscritorio);
                     panelEscritorio.setVisible(true);
                     panelLogin.noExisteEquivocado.setVisible(false);
@@ -129,6 +128,53 @@ public class VentanaPrincipal extends JFrame implements ActionListener{
             
         }
        
+        
+        
+        
+        //Botón para cerrar sesión.
+        if (botonSeleccionado == panelEscritorio.botonCerrarSesion) {
+            add(panelLogin);
+            panelLogin.setVisible(true);
+            panelEscritorio.setVisible(false);
+        }
+        
+        //Botón para ir al panel de creación de usuarios.
+        if (botonSeleccionado == panelEscritorio.botonCrearUsuarios) {
+            add(panelCrearUsuario);
+            panelCrearUsuario.setVisible(true);
+            panelEscritorio.setVisible(false);
+        }
+        
+        //Botón para regresar al escritorio desde el panel de creación de usuario.
+        if (botonSeleccionado == panelCrearUsuario.botonRegresar) {
+            add(panelEscritorio);
+            panelEscritorio.setVisible(true);
+            panelCrearUsuario.setVisible(false);
+        }
+        
+        //Botón para confirmar la creación del usuario nuevo.
+        if (botonSeleccionado == panelCrearUsuario.botonCrear) {
+            add(panelLogin);
+            
+            String usuarioDeseado = panelCrearUsuario.campoUsuario.getText();
+            String contraseñaDeseada = panelCrearUsuario.campoContraseña.getText();
+            
+            boolean usuarioRepetido=false;
+            
+            for(int i = 0; i<usuarios.length; i=i+2){
+                if (usuarioDeseado.equals(usuarios[i])) {
+                    usuarioRepetido = true;
+                }
+                
+            }
+            
+            if (seguridad.creacionUsuario(usuarios, usuarioDeseado, contraseñaDeseada, file)==true && usuarioRepetido == false) {
+                panelLogin.setVisible(true);
+                panelCrearUsuario.setVisible(false);
+            }
+            
+        }
+        
         
         
         
