@@ -13,22 +13,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import miniwindows.MiniWindows;
 import opcionesescritorio.CrearUsuario;
-import usuarios.Seguridad;
 import usuarios.Usuarios;
 
-public class VentanaPrincipal extends JFrame implements ActionListener{
+public class VentanaPrincipal extends JFrame implements ActionListener, TreeSelectionListener {
 
     //Objetos/atributos.
+    MiniWindows b = new MiniWindows();
+    
     VentanaLogin panelLogin = new VentanaLogin();
     VentanaEscritorio panelEscritorio = new VentanaEscritorio();
     CrearUsuario panelCrearUsuario = new CrearUsuario();
-    
-    int posicionUsuario = 1; //Establecemos la posición 1 porque la 0 ya está ocupada.
+    Usuarios users = new Usuarios();
+    public String usuarioLogged = null;
+
+   
     
     //Constructor.
-    public VentanaPrincipal(){
-        
+    public VentanaPrincipal() throws FileNotFoundException{
         
         setExtendedState(JFrame.MAXIMIZED_BOTH); 
         setVisible(true);
@@ -43,6 +48,8 @@ public class VentanaPrincipal extends JFrame implements ActionListener{
         
         //Escritorio.
         panelEscritorio.botonCrearUsuarios.addActionListener(this);
+        panelEscritorio.botonNavegador.addActionListener(this);
+        panelEscritorio.botonNavegadorSalir.addActionListener(this);
         panelEscritorio.botonCerrarSesion.addActionListener(this);
          
         //Crear usuario.
@@ -53,17 +60,6 @@ public class VentanaPrincipal extends JFrame implements ActionListener{
     }
     
     
-    
-    //Variables para el login.
-    private static Scanner sc;
-    private static String user, contraseña;
-    private static File almacenUsuarios = new File("usuarios.txt");
-    private File file = new File("usuarios.txt");
-    int nLineas = 0;
-    String usuarios[] = new String[10];
-    Seguridad seguridad = new Seguridad();
-
-    
     @Override
     public void actionPerformed(ActionEvent ae) {
         
@@ -73,57 +69,41 @@ public class VentanaPrincipal extends JFrame implements ActionListener{
         
         if (botonSeleccionado == panelLogin.botonLogin) {
             
-            FileReader fr = null;
+            String usuario = panelLogin.campoUsuario.getText();
+            String contraseña = panelLogin.campoContraseña.getText();
+            
+            
             try {
-                int i = 0;
-                String linea;
-                sc = new Scanner(almacenUsuarios);
-                fr = new FileReader(file);
-                BufferedReader br = new BufferedReader(fr);
-                
-                try {
-                    //Procesamos el archivo.
-                    while((linea=br.readLine())!=null){
-                        nLineas++; //Aquí contamos las líneas hasta que ya no hayan líneas.
-                    }
-                    
-                    
-                } catch (IOException ex) {
-                    Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
-                
-                //Así sabemos el tamaño del arreglo.
-                usuarios = new String[nLineas];
-                
-                //Para llenarlo.
-                while(sc.hasNextLine()){
-                    usuarios[i++] = sc.nextLine(); //Estamos almacenando cada línea en una posición del arreglo.
-                }
-                
-                user = panelLogin.campoUsuario.getText();
-                contraseña = panelLogin.campoContraseña.getText();
-
-                if (seguridad.validarUsuario(usuarios, user, contraseña) == true) {
+                if (users.findUser(usuario, contraseña) == true) {
                     add(panelEscritorio);
                     panelEscritorio.setVisible(true);
-                    panelLogin.noExisteEquivocado.setVisible(false);
+                    panelEscritorio.botonCrearUsuarios.setEnabled(false);
                     panelLogin.setVisible(false);
-                }else{
-                    panelLogin.noExisteEquivocado.setVisible(true);
+                    panelLogin.noExisteEquivocado.setVisible(false);
+                    
+                    usuarioLogged=usuario;
+                    panelEscritorio.setUserLogged(usuario);
+                    panelEscritorio.arbol.setVisible(false);
                 }
-                
-                
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                try {
-                    fr.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            } catch (IOException ex) {
+                panelLogin.noExisteEquivocado.setVisible(true);
             }
             
+            
+            if (usuario.equals("admin") && contraseña.equals("123")) {
+                add(panelEscritorio);
+                panelEscritorio.setVisible(true);
+                panelEscritorio.botonCrearUsuarios.setEnabled(true);
+                panelLogin.setVisible(false);
+                panelLogin.noExisteEquivocado.setVisible(false);
+                
+                usuarioLogged="admin";
+                panelEscritorio.setUserLogged("admin");
+                panelEscritorio.arbol.setVisible(false);
+                
+            }else{
+                panelLogin.noExisteEquivocado.setVisible(true);
+            }
             
             
         }
@@ -135,13 +115,20 @@ public class VentanaPrincipal extends JFrame implements ActionListener{
         if (botonSeleccionado == panelEscritorio.botonCerrarSesion) {
             add(panelLogin);
             panelLogin.setVisible(true);
+            panelLogin.campoContraseña.setText(null);
+            panelLogin.campoUsuario.setText(null);
+            panelLogin.noExisteEquivocado.setVisible(false);
             panelEscritorio.setVisible(false);
         }
         
         //Botón para ir al panel de creación de usuarios.
         if (botonSeleccionado == panelEscritorio.botonCrearUsuarios) {
             add(panelCrearUsuario);
+            
             panelCrearUsuario.setVisible(true);
+            panelCrearUsuario.usuarioExiste.setVisible(false);
+            panelCrearUsuario.campoContraseña.setText(null);
+            panelCrearUsuario.campoUsuario.setText(null);
             panelEscritorio.setVisible(false);
         }
         
@@ -150,37 +137,70 @@ public class VentanaPrincipal extends JFrame implements ActionListener{
             add(panelEscritorio);
             panelEscritorio.setVisible(true);
             panelCrearUsuario.setVisible(false);
+            panelEscritorio.arbol.setVisible(false);
         }
         
         //Botón para confirmar la creación del usuario nuevo.
         if (botonSeleccionado == panelCrearUsuario.botonCrear) {
-            add(panelLogin);
-            
-            String usuarioDeseado = panelCrearUsuario.campoUsuario.getText();
-            String contraseñaDeseada = panelCrearUsuario.campoContraseña.getText();
-            
-            boolean usuarioRepetido=false;
-            
-            for(int i = 0; i<usuarios.length; i=i+2){
-                if (usuarioDeseado.equals(usuarios[i])) {
-                    usuarioRepetido = true;
+            try {
+                add(panelLogin);
+                
+                String usuario = panelCrearUsuario.campoUsuario.getText();
+                String contraseña = panelCrearUsuario.campoContraseña.getText();
+                
+                if((users.findUser(usuario, contraseña)==false) && (usuario.equals("admin")==false)){ //Comprobamos que el usuario no existe.
+                   users.almacenar(usuario, contraseña);
+                   users.crearEmpleadoFolder(usuario);
+                   add(panelLogin);
+                   panelLogin.setVisible(true);
+                   panelLogin.campoContraseña.setText(null);
+                   panelLogin.campoUsuario.setText(null);
+                   panelLogin.noExisteEquivocado.setVisible(false);
+                   panelCrearUsuario.setVisible(false);
+                }else{
+                    panelCrearUsuario.usuarioExiste.setVisible(true);
                 }
+                
+            } catch (IOException ex) {
                 
             }
             
-            if (seguridad.creacionUsuario(usuarios, usuarioDeseado, contraseñaDeseada, file)==true && usuarioRepetido == false) {
-                panelLogin.setVisible(true);
-                panelCrearUsuario.setVisible(false);
-            }
             
         }
         
         
+        
+        //Botón para el navegador de carpetas.
+        if (botonSeleccionado == panelEscritorio.botonNavegador) {
+            panelEscritorio.botonNavegadorSalir.setVisible(true);
+            panelEscritorio.botonNavegador.setVisible(false);
+            panelEscritorio.arbol.setVisible(true);
+        }
+        
+        //Botón para el navegador para salir.
+        if (botonSeleccionado == panelEscritorio.botonNavegadorSalir) {
+            panelEscritorio.botonNavegador.setVisible(true);
+            panelEscritorio.botonNavegadorSalir.setVisible(false);
+            panelEscritorio.arbol.setVisible(false);
+        }
         
         
         
     }
     
     
+    
+    //Creación de la carpeta raíz: Z.
+    File file = new File("Z");
+    public void crearCarpetaZ() throws IOException{
+        file.mkdirs();
+    }
+
+    
+    //Método oyente del JTree.
+    @Override
+    public void valueChanged(TreeSelectionEvent tse) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

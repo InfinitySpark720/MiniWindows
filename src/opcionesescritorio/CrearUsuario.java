@@ -24,7 +24,7 @@ public class CrearUsuario extends JPanel {
     Font fuenteEtiquetas = new Font("Elephant", 0 , 15); 
     
     public JButton botonRegresar = new JButton("Regresar");
-    
+    public JLabel usuarioExiste = new JLabel("El usuario que ha ingresado ya existe.");
     
     
     public CrearUsuario(){
@@ -32,6 +32,10 @@ public class CrearUsuario extends JPanel {
         this.setLayout(null);
         this.setBackground(Color.GRAY);
         
+        usuarioExiste.setForeground(Color.red);
+        usuarioExiste.setFont(fuenteEtiquetas);
+        usuarioExiste.setBounds(515, 100, 350, 100);
+        add(usuarioExiste);
         
         //Botón de regresar.
         botonRegresar.setFont(new Font("Elephant", Font.BOLD, 20));
