@@ -65,13 +65,55 @@ public class VentanaEscritorio extends JPanel {
     JButton botonConsolaComandos = new JButton();
     JButton botonReproductorMusical = new JButton();
 
+    JButton botonEditorTextoSalir = new JButton();
+    JButton botonVisorImagenesSalir = new JButton();
+    JButton botonConsolaComandosSalir = new JButton();
+    JButton botonReproductorMusicalSalir = new JButton();
+    
     JLabel etiquetaFecha = new JLabel();
     Calendar fechaActual;
+
+    public JButton pestañaNavegador = new JButton("Navegador");
+    public JButton pestañaEditorTexto = new JButton("Editor de Texto");
+    public JButton pestañaVisorImagenes = new JButton("Visor de Imágenes");
+    public JButton pestañaConsolaComandos = new JButton("Consola de Comandos");
+    public JButton pestañaReproductorMusical = new JButton("Reproductor Musical");
 
     public VentanaEscritorio() {
 
         this.setLayout(null);
         this.setBackground(Color.DARK_GRAY);
+
+        //Pestañas
+        pestañaNavegador.setBounds(200, 0, 200, 50);
+        pestañaNavegador.setForeground(Color.WHITE);
+        pestañaNavegador.setBackground(Color.BLACK);
+        pestañaNavegador.setBorderPainted(false);
+        panelInferior.add(pestañaNavegador);
+
+        pestañaEditorTexto.setBounds(400, 0, 200, 50);
+        pestañaEditorTexto.setForeground(Color.WHITE);
+        pestañaEditorTexto.setBackground(Color.BLACK);
+        pestañaEditorTexto.setBorderPainted(false);
+        panelInferior.add(pestañaEditorTexto);
+
+        pestañaVisorImagenes.setBounds(600, 0, 200, 50);
+        pestañaVisorImagenes.setForeground(Color.WHITE);
+        pestañaVisorImagenes.setBackground(Color.BLACK);
+        pestañaVisorImagenes.setBorderPainted(false);
+        panelInferior.add(pestañaVisorImagenes);
+
+        pestañaConsolaComandos.setBounds(800, 0, 200, 50);
+        pestañaConsolaComandos.setForeground(Color.WHITE);
+        pestañaConsolaComandos.setBackground(Color.BLACK);
+        pestañaConsolaComandos.setBorderPainted(false);
+        panelInferior.add(pestañaConsolaComandos);
+
+        pestañaReproductorMusical.setBounds(1000, 0, 170, 50);
+        pestañaReproductorMusical.setForeground(Color.WHITE);
+        pestañaReproductorMusical.setBackground(Color.BLACK);
+        pestañaReproductorMusical.setBorderPainted(false);
+        panelInferior.add(pestañaReproductorMusical);
 
         fechaActual = Calendar.getInstance();
         int dia = fechaActual.getTime().getDate();
@@ -113,6 +155,7 @@ public class VentanaEscritorio extends JPanel {
         panelSuperior.add(etiquetaFecha);
         add(panelSuperior);
 
+        panelInferior.setLayout(null);
         panelInferior.setBounds(0, 659, 1500, 50);
         add(panelInferior);
 
@@ -126,7 +169,7 @@ public class VentanaEscritorio extends JPanel {
         botonCerrarSesion.setFont(new Font("Elephant", Font.BOLD, 20));
         botonCerrarSesion.setForeground(Color.BLACK);
         botonCerrarSesion.setBackground(Color.RED);
-        botonCerrarSesion.setBounds(0, 640, 200, 30);
+        botonCerrarSesion.setBounds(0, 600, 200, 30);
         //add(botonCerrarSesion);
 
         //Le asignamos una imágen como ícono al botón.
@@ -156,6 +199,7 @@ public class VentanaEscritorio extends JPanel {
         try {
             Image imagenEditorTexto = ImageIO.read(getClass().getResource("/imagenes/editorTextoImagen.png"));
             botonEditorTexto.setIcon(new ImageIcon(imagenEditorTexto.getScaledInstance(180, 150, java.awt.Image.SCALE_SMOOTH)));
+            botonEditorTextoSalir.setIcon(new ImageIcon(imagenEditorTexto.getScaledInstance(180, 150, java.awt.Image.SCALE_SMOOTH)));
         } catch (IOException ex) {
             Logger.getLogger(VentanaEscritorio.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -163,6 +207,10 @@ public class VentanaEscritorio extends JPanel {
         botonEditorTexto.setBounds(10, 390, 180, 150);
         botonEditorTexto.setBackground(Color.GRAY);
 
+        botonEditorTextoSalir.setBounds(10, 390, 180, 150);
+        botonEditorTextoSalir.setBackground(Color.GRAY);
+        botonEditorTextoSalir.setVisible(false);  
+        
         etiquetaEditorTexto.setBounds(48, 530, 200, 50);
         etiquetaEditorTexto.setForeground(Color.BLACK);
         etiquetaEditorTexto.setFont(fuenteEtiquetas);
@@ -170,13 +218,18 @@ public class VentanaEscritorio extends JPanel {
         try {
             Image imagenVisorImagenes = ImageIO.read(getClass().getResource("/imagenes/visorImagenes.jpg"));
             botonVisorImagenes.setIcon(new ImageIcon(imagenVisorImagenes.getScaledInstance(180, 150, java.awt.Image.SCALE_SMOOTH)));
+            botonVisorImagenesSalir.setIcon(new ImageIcon(imagenVisorImagenes.getScaledInstance(180, 150, java.awt.Image.SCALE_SMOOTH)));
         } catch (IOException ex) {
             Logger.getLogger(VentanaEscritorio.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         botonVisorImagenes.setBounds(10, 20, 180, 150);
         botonVisorImagenes.setBackground(Color.GRAY);
-
+        
+        botonVisorImagenesSalir.setBounds(10, 20, 180, 150);
+        botonVisorImagenesSalir.setBackground(Color.GRAY);
+        botonVisorImagenesSalir.setVisible(false);
+        
         etiquetaVisorImagenes.setForeground(Color.BLACK);
         etiquetaVisorImagenes.setFont(fuenteEtiquetas);
         etiquetaVisorImagenes.setBounds(30, 155, 200, 50);
@@ -184,12 +237,17 @@ public class VentanaEscritorio extends JPanel {
         try {
             Image imagenReproductorMusical = ImageIO.read(getClass().getResource("/imagenes/reproductorMusical.jfif"));
             botonReproductorMusical.setIcon(new ImageIcon(imagenReproductorMusical.getScaledInstance(180, 150, java.awt.Image.SCALE_SMOOTH)));
+            botonReproductorMusicalSalir.setIcon(new ImageIcon(imagenReproductorMusical.getScaledInstance(180, 150, java.awt.Image.SCALE_SMOOTH)));
         } catch (IOException ex) {
             Logger.getLogger(VentanaEscritorio.class.getName()).log(Level.SEVERE, null, ex);
         }
         botonReproductorMusical.setBounds(10, 220, 180, 150);
         botonReproductorMusical.setBackground(Color.GRAY);
 
+        botonReproductorMusicalSalir.setBounds(10, 220, 180, 150);
+        botonReproductorMusicalSalir.setBackground(Color.GRAY);
+        botonReproductorMusicalSalir.setVisible(false);
+        
         etiquetaReproductorMusical.setBounds(20, 355, 200, 50);
         etiquetaReproductorMusical.setForeground(Color.BLACK);
         etiquetaReproductorMusical.setFont(fuenteEtiquetas);
@@ -197,12 +255,17 @@ public class VentanaEscritorio extends JPanel {
         try {
             Image imagenConsolaComandos = ImageIO.read(getClass().getResource("/imagenes/consolaImagen.png"));
             botonConsolaComandos.setIcon(new ImageIcon(imagenConsolaComandos.getScaledInstance(180, 150, java.awt.Image.SCALE_SMOOTH)));
+            botonConsolaComandosSalir.setIcon(new ImageIcon(imagenConsolaComandos.getScaledInstance(180, 150, java.awt.Image.SCALE_SMOOTH)));
         } catch (IOException ex) {
             Logger.getLogger(VentanaEscritorio.class.getName()).log(Level.SEVERE, null, ex);
         }
         botonConsolaComandos.setBounds(10, 415, 180, 150);
         botonConsolaComandos.setBackground(Color.GRAY);
 
+        botonConsolaComandosSalir.setBounds(10, 415, 180, 150);
+        botonConsolaComandosSalir.setBackground(Color.GRAY);
+        botonConsolaComandosSalir.setVisible(false);
+        
         etiquetaConsolaComandos.setBounds(20, 550, 200, 50);
         etiquetaConsolaComandos.setForeground(Color.BLACK);
         etiquetaConsolaComandos.setFont(fuenteEtiquetas);
@@ -220,7 +283,6 @@ public class VentanaEscritorio extends JPanel {
 //    public Timer timer;
 //    public final static int ONE_SECOND = 1000;
 //    private final SimpleDateFormat clockFormat = new SimpleDateFormat("H:mm:ss");
-
 //    public void horaLocal() {
 //        clockLabel = new JLabel();
 //        clockLabel.setForeground(Color.WHITE);
@@ -229,7 +291,6 @@ public class VentanaEscritorio extends JPanel {
 //
 //        show();
 //    }
-
 //    @Override
 //    public void show() {
 //        timer = new Timer(ONE_SECOND, new ActionListener() {
@@ -243,5 +304,4 @@ public class VentanaEscritorio extends JPanel {
 //        clockLabel.setText(clockFormat.format(new Date()));
 //        timer.start();
 //    }
-
 }

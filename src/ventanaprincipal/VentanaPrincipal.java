@@ -60,12 +60,21 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
         panelEscritorio.botonNavegador.addActionListener(this);
         panelEscritorio.botonNavegadorSalir.addActionListener(this);
         panelEscritorio.botonCerrarSesion.addActionListener(this);
+        panelEscritorio.botonEditorTexto.addActionListener(this);
+        panelEscritorio.botonConsolaComandos.addActionListener(this);
+        panelEscritorio.botonReproductorMusical.addActionListener(this);
+        panelEscritorio.botonVisorImagenes.addActionListener(this);
+        panelEscritorio.botonEditorTextoSalir.addActionListener(this);
+        panelEscritorio.botonConsolaComandosSalir.addActionListener(this);
+        panelEscritorio.botonReproductorMusicalSalir.addActionListener(this);
+        panelEscritorio.botonVisorImagenesSalir.addActionListener(this);
 
         //Crear usuario.
         panelCrearUsuario.botonCrear.addActionListener(this);
         panelCrearUsuario.botonRegresar.addActionListener(this);
 
         add(panelLogin);
+
     }
 
     @Override
@@ -74,7 +83,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
         Object botonSeleccionado = ae.getSource();
 
         if (botonSeleccionado == panelLogin.botonLogin) {
-            
+
             String usuario = panelLogin.campoUsuario.getText();
             String contraseña = panelLogin.campoContraseña.getText();
 
@@ -87,6 +96,12 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
                     panelLogin.noExisteEquivocado.setVisible(false);
                     panelEscritorio.arbol.setVisible(false);
                     usuarioL = usuario;
+
+                    panelEscritorio.pestañaConsolaComandos.setBackground(Color.BLACK);
+                    panelEscritorio.pestañaEditorTexto.setBackground(Color.BLACK);
+                    panelEscritorio.pestañaNavegador.setBackground(Color.BLACK);
+                    panelEscritorio.pestañaReproductorMusical.setBackground(Color.BLACK);
+                    panelEscritorio.pestañaVisorImagenes.setBackground(Color.BLACK);
                 }
             } catch (IOException ex) {
                 panelLogin.noExisteEquivocado.setVisible(true);
@@ -100,7 +115,13 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
                 panelLogin.noExisteEquivocado.setVisible(false);
                 panelEscritorio.arbol.setVisible(false);
                 usuarioL = "admin";
-                
+
+                panelEscritorio.pestañaConsolaComandos.setBackground(Color.BLACK);
+                panelEscritorio.pestañaEditorTexto.setBackground(Color.BLACK);
+                panelEscritorio.pestañaNavegador.setBackground(Color.BLACK);
+                panelEscritorio.pestañaReproductorMusical.setBackground(Color.BLACK);
+                panelEscritorio.pestañaVisorImagenes.setBackground(Color.BLACK);
+
             } else {
                 panelLogin.noExisteEquivocado.setVisible(true);
             }
@@ -152,6 +173,12 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
             arbol.setVisible(false);
             panelEscritorio.botonNavegador.setVisible(true);
             panelEscritorio.botonNavegadorSalir.setVisible(false);
+
+            panelEscritorio.pestañaConsolaComandos.setBackground(Color.BLACK);
+            panelEscritorio.pestañaEditorTexto.setBackground(Color.BLACK);
+            panelEscritorio.pestañaNavegador.setBackground(Color.BLACK);
+            panelEscritorio.pestañaReproductorMusical.setBackground(Color.BLACK);
+            panelEscritorio.pestañaVisorImagenes.setBackground(Color.BLACK);
         }
 
         //Botón para confirmar la creación del usuario nuevo.
@@ -188,6 +215,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
             iniciarJTree();
             arbol.setVisible(true);
             scroll.setVisible(true);
+            panelEscritorio.pestañaNavegador.setBackground(Color.GREEN);
         }
 
         //Botón para el navegador para salir.
@@ -196,6 +224,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
             panelEscritorio.botonNavegadorSalir.setVisible(false);
             arbol.setVisible(false);
             scroll.setVisible(false);
+            panelEscritorio.pestañaNavegador.setBackground(Color.BLACK);
         }
 
     }
@@ -243,6 +272,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
             //Listar las carpetas de un usuario en concreto.
             File archivosUsuario = new File(archivosUsuarioDireccion);
             listarFiles(fileRaiz, getUserLogged(), archivosUsuario);
+
         } else {
             listarFilesAdmin(fileRaiz);
         }
@@ -250,20 +280,25 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
 
     //Mostrar las carpetas del usuario logged en caso de que no sean admin.
     public void listarFiles(File direccion, String userLogged, File direccion2) {
+        DefaultMutableTreeNode hijo2;
+        DefaultMutableTreeNode hijo = null;
 
         for (File hijos : direccion.listFiles()) {
-            DefaultMutableTreeNode hijo = new DefaultMutableTreeNode(hijos.getName());
-            raiz.add(hijo);
-
+            if (hijos.getName().equals(userLogged)) { //Nos aseguramos que sólo muestre las carpetas del usuario logged.
+                hijo = new DefaultMutableTreeNode(hijos.getName());
+                raiz.add(hijo);
+            }
             if (hijos.getName().equals(userLogged) && !hijos.getName().equals("admin")) {
                 for (File hijos2 : direccion2.listFiles()) {
-                    DefaultMutableTreeNode hijo2 = new DefaultMutableTreeNode(hijos2.getName());
+                    hijo2 = new DefaultMutableTreeNode(hijos2.getName());
                     hijo.add(hijo2); //Aquí lo agregaríamos al nodo del usuario.
+
+                    if (hijos2.isDirectory()) {
+                        listarFilesUserNormal(hijos2, hijo2);
+                    }
                 }
             }
-
         }
-
     }
 
     //Listar a todas las carpetas cuando sea el usuario admin.
@@ -278,8 +313,28 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
             for (File hijos2 : hijosUsuarios.listFiles()) {
                 DefaultMutableTreeNode hijo2 = new DefaultMutableTreeNode(hijos2.getName());
                 hijo.add(hijo2); //Aquí lo agregaríamos al nodo de cada usuario.
+
+                if (hijos2.isDirectory()) {
+                    listarFilesAdmin2(hijos2, hijo2);
+                }
+            }
+
+        }
+
+    }
+
+    public void listarFilesAdmin2(File direccionRaiz, DefaultMutableTreeNode children) {
+        for (File hijos3 : direccionRaiz.listFiles()) {
+            DefaultMutableTreeNode hijo3 = new DefaultMutableTreeNode(hijos3.getName());
+            children.add(hijo3);
+
+            if (hijos3.isDirectory()) {
+                listarFilesAdmin2(hijos3, hijo3);
             }
         }
+    }
+
+    public void listarArchivosUsuarioEspecifico(File direccionRaiz, DefaultMutableTreeNode children) {
 
     }
 
@@ -293,6 +348,20 @@ public class VentanaPrincipal extends JFrame implements ActionListener, TreeSele
 
     public String getUserLogged() {
         return usuarioL;
+    }
+
+    //
+    //
+    //
+    public void listarFilesUserNormal(File direccionRaiz, DefaultMutableTreeNode children) {
+        for (File hijos3 : direccionRaiz.listFiles()) {
+            DefaultMutableTreeNode hijo3 = new DefaultMutableTreeNode(hijos3.getName());
+            children.add(hijo3);
+
+            if (hijos3.isDirectory()) {
+                listarFilesUserNormal(hijos3, hijo3);
+            }
+        }
     }
 
 }
