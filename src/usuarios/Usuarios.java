@@ -24,7 +24,7 @@ public class Usuarios {
         Primero va el nombre del archivo.
         Segundo puede ir r que es read o rw que es para read and write.
          */
-        users = new RandomAccessFile("usuarios.usr", "rw");
+        users = new RandomAccessFile("usuarios.emp", "rw");
     }
 
     //Función que me lleva el puntero al final del archivo.
@@ -62,7 +62,7 @@ public class Usuarios {
 
     //Función para la creación de folder al crear un nuevo usuario.
     public String usuarioFolder(String usuario) {
-        return "Z/" + usuario;
+        return "src/Z/" + usuario;
     }
 
     //Función para dar la dirección de la carpeta de las imágenes.
